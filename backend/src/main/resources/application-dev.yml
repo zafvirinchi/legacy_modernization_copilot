@@ -1,0 +1,20 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb+srv://testuser:testpass@localhost:27017/ai_legacy_modernization?ssl=false
+      auto-index-creation: true
+
+logging:
+  level:
+    root: INFO
+    com.ailegacy.modernization.copilot: DEBUG
+    org.springframework: DEBUG
+    org.springframework.data.mongodb: DEBUG
+
+jwt:
+  secret: dev-secret-key-not-for-production
+  expiration-ms: 86400000
+
+app:
+  temp-directory: ./temp-uploads
+  output-directory: ./output-reports
