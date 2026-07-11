@@ -11,18 +11,18 @@ import { Project, Scan, Issue, Recommendation, Report, AuthResponse } from '@/ty
  */
 export const authService = {
   login: async (email: string, password: string): Promise<AuthResponse> => {
-    const response = await apiClient.post(API_ENDPOINTS.AUTH_LOGIN, { email, password });
+    const response = await apiClient.post<AuthResponse>(API_ENDPOINTS.AUTH_LOGIN, { email, password });
     return response.data;
   },
   register: async (email: string, password: string, name: string): Promise<AuthResponse> => {
-    const response = await apiClient.post(API_ENDPOINTS.AUTH_REGISTER, { email, password, name });
+    const response = await apiClient.post<AuthResponse>(API_ENDPOINTS.AUTH_REGISTER, { email, password, name });
     return response.data;
   },
   logout: async () => {
     return apiClient.post(API_ENDPOINTS.AUTH_LOGOUT);
   },
   getMe: async () => {
-    const response = await apiClient.get(API_ENDPOINTS.AUTH_ME);
+    const response = await apiClient.get<AuthResponse>(API_ENDPOINTS.AUTH_ME);
     return response.data;
   },
 };
@@ -32,22 +32,21 @@ export const authService = {
  */
 export const projectService = {
   list: async (): Promise<Project[]> => {
-    const response = await apiClient.get(API_ENDPOINTS.PROJECTS_LIST);
+    const response = await apiClient.get<Project[]>(API_ENDPOINTS.PROJECTS_LIST);
     return response.data;
   },
   create: async (data: Partial<Project>): Promise<Project> => {
-    const response = await apiClient.post(API_ENDPOINTS.PROJECTS_CREATE, data);
+    const response = await apiClient.post<Project>(API_ENDPOINTS.PROJECTS_CREATE, data);
     return response.data;
   },
   get: async (id: string): Promise<Project> => {
-    const response = await apiClient.get(API_ENDPOINTS.PROJECTS_GET(id));
+    const response = await apiClient.get<Project>(API_ENDPOINTS.PROJECTS_GET(id));
     return response.data;
   },
   update: async (id: string, data: Partial<Project>): Promise<Project> => {
-    const response = await apiClient.put(API_ENDPOINTS.PROJECTS_UPDATE(id), data);
+    const response = await apiClient.put<Project>(API_ENDPOINTS.PROJECTS_UPDATE(id), data);
     return response.data;
-  },
-  delete: async (id: string) => {
+  },  delete: async (id: string) => {
     return apiClient.delete(API_ENDPOINTS.PROJECTS_DELETE(id));
   },
 };
@@ -57,15 +56,15 @@ export const projectService = {
  */
 export const scanService = {
   list: async (projectId: string): Promise<Scan[]> => {
-    const response = await apiClient.get(API_ENDPOINTS.SCANS_LIST(projectId));
+    const response = await apiClient.get<Scan[]>(API_ENDPOINTS.SCANS_LIST(projectId));
     return response.data;
   },
   create: async (projectId: string): Promise<Scan> => {
-    const response = await apiClient.post(API_ENDPOINTS.SCANS_CREATE(projectId), {});
+    const response = await apiClient.post<Scan>(API_ENDPOINTS.SCANS_CREATE(projectId), {});
     return response.data;
   },
   get: async (scanId: string): Promise<Scan> => {
-    const response = await apiClient.get(API_ENDPOINTS.SCANS_GET(scanId));
+    const response = await apiClient.get<Scan>(API_ENDPOINTS.SCANS_GET(scanId));
     return response.data;
   },
   getStatus: async (scanId: string) => {
@@ -73,7 +72,7 @@ export const scanService = {
     return response.data;
   },
   rerun: async (scanId: string): Promise<Scan> => {
-    const response = await apiClient.post(API_ENDPOINTS.SCANS_RERUN(scanId), {});
+    const response = await apiClient.post<Scan>(API_ENDPOINTS.SCANS_RERUN(scanId), {});
     return response.data;
   },
 };
@@ -83,11 +82,11 @@ export const scanService = {
  */
 export const analysisService = {
   getIssues: async (scanId: string): Promise<Issue[]> => {
-    const response = await apiClient.get(API_ENDPOINTS.ISSUES_LIST(scanId));
+    const response = await apiClient.get<Issue[]>(API_ENDPOINTS.ISSUES_LIST(scanId));
     return response.data;
   },
   getRecommendations: async (scanId: string): Promise<Recommendation[]> => {
-    const response = await apiClient.get(API_ENDPOINTS.RECOMMENDATIONS_LIST(scanId));
+    const response = await apiClient.get<Recommendation[]>(API_ENDPOINTS.RECOMMENDATIONS_LIST(scanId));
     return response.data;
   },
 };
@@ -97,19 +96,19 @@ export const analysisService = {
  */
 export const reportService = {
   list: async (scanId: string): Promise<Report[]> => {
-    const response = await apiClient.get(API_ENDPOINTS.REPORTS_LIST(scanId));
+    const response = await apiClient.get<Report[]>(API_ENDPOINTS.REPORTS_LIST(scanId));
     return response.data;
   },
   create: async (scanId: string, type: string): Promise<Report> => {
-    const response = await apiClient.post(API_ENDPOINTS.REPORTS_CREATE(scanId), { type });
+    const response = await apiClient.post<Report>(API_ENDPOINTS.REPORTS_CREATE(scanId), { type });
     return response.data;
   },
   get: async (reportId: string): Promise<Report> => {
-    const response = await apiClient.get(API_ENDPOINTS.REPORTS_GET(reportId));
+    const response = await apiClient.get<Report>(API_ENDPOINTS.REPORTS_GET(reportId));
     return response.data;
   },
   download: async (reportId: string) => {
-    const response = await apiClient.get(API_ENDPOINTS.REPORTS_DOWNLOAD(reportId), {
+    const response = await apiClient.get<Blob>(API_ENDPOINTS.REPORTS_DOWNLOAD(reportId), {
       responseType: 'blob',
     });
     return response.data;

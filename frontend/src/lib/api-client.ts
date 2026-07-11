@@ -3,7 +3,12 @@
  * Centralized API communication with interceptors
  */
 
-import axios, { AxiosInstance } from 'axios';
+import axios, {
+  AxiosInstance,
+  AxiosRequestConfig,
+  AxiosRequestHeaders,
+  InternalAxiosRequestConfig,
+} from 'axios';
 import { API_BASE_URL } from '@/constants';
 import { getAuthToken, removeAuthToken } from '@/utils/auth';
 
@@ -22,13 +27,17 @@ class ApiClient {
     this.setupInterceptors();
   }
 
-  private setupInterceptors() {
+  private setupInterceptors(): void {
     // Request interceptor
     this.client.interceptors.request.use(
-      (config) => {
+      (config: InternalAxiosRequestConfig) => {
         const token = getAuthToken();
         if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
+          const headers = config.headers ?? {};
+          config.headers = {
+            ...headers,
+            Authorization: `Bearer ${token}`,
+          } as AxiosRequestHeaders;
         }
         return config;
       },
@@ -41,37 +50,40 @@ class ApiClient {
       (error) => {
         if (error.response?.status === 401) {
           removeAuthToken();
-          window.location.href = '/login';
+          if (typeof window !== 'undefined') {
+            window.location.href = '/login';
+          }
         }
         return Promise.reject(error);
       }
     );
   }
 
-  get<T = any>(url: string, config?: any) {
+  get<T = unknown>(url: string, config?: AxiosRequestConfig) {
     return this.client.get<T>(url, config);
   }
 
-  post<T = any>(url: string, data?: any, config?: any) {
+  post<T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig) {
     return this.client.post<T>(url, data, config);
   }
 
-  put<T = any>(url: string, data?: any, config?: any) {
+  put<T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig) {
     return this.client.put<T>(url, data, config);
   }
 
-  delete<T = any>(url: string, config?: any) {
+  delete<T = unknown>(url: string, config?: AxiosRequestConfig) {
     return this.client.delete<T>(url, config);
   }
 
-  patch<T = any>(url: string, data?: any, config?: any) {
+  patch<T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig) {
     return this.client.patch<T>(url, data, config);
   }
 
-  upload<T = any>(url: string, formData: FormData, config?: any) {
+  upload<T = unknown>(url: string, formData: FormData, config?: AxiosRequestConfig) {
     return this.client.post<T>(url, formData, {
       ...config,
       headers: {
+        ...config?.headers,
         'Content-Type': 'multipart/form-data',
       },
     });

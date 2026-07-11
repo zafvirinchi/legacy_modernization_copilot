@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import type { ReactNode } from 'react';
 import { Providers } from '@/app/providers';
 import '@/styles/globals.css';
 
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
   robots: 'index, follow',
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="bg-background text-foreground">

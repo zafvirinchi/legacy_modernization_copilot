@@ -62,7 +62,7 @@ public class JwtTokenProvider {
     public String getUserIdFromJWT(String token) {
         try {
             SecretKey key = Keys.hmacShaKeyFor(jwtSecretKey.getBytes());
-            Claims claims = Jwts.parserBuilder()
+            Claims claims = Jwts.parser()
                     .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token)
@@ -80,7 +80,7 @@ public class JwtTokenProvider {
     public Claims getClaimsFromJWT(String token) {
         try {
             SecretKey key = Keys.hmacShaKeyFor(jwtSecretKey.getBytes());
-            return Jwts.parserBuilder()
+            return Jwts.parser()
                     .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token)
@@ -97,7 +97,7 @@ public class JwtTokenProvider {
     public boolean validateToken(String token) {
         try {
             SecretKey key = Keys.hmacShaKeyFor(jwtSecretKey.getBytes());
-            Jwts.parserBuilder()
+            Jwts.parser()
                     .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token);

@@ -67,7 +67,7 @@ public class LangChain4jConfig {
 
         log.info("Initializing OpenAI Embedding Model");
 
-        return new OpenAiEmbeddingModel.Builder()
+        return OpenAiEmbeddingModel.builder()
                 .apiKey(openAiApiKey)
                 .modelName("text-embedding-3-small")
                 .build();

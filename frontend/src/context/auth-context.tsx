@@ -23,7 +23,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const login = useCallback(async (email: string, password: string) => {
+  const login = useCallback(async (_email: string, _password: string) => {
     setIsLoading(true);
     try {
       // TODO: Implement login logic
