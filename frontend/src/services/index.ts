@@ -18,6 +18,7 @@ import {
   User,
   TechnologyDetectionResult,
   ArchitectureAnalysisResult,
+  ModernizationPlan,
 } from '@/types';
 import { getRefreshToken } from '@/utils/auth';
 
@@ -118,6 +119,24 @@ export const architectureAnalysisService = {
   get: async (projectId: string): Promise<ArchitectureAnalysisResult> => {
     const response = await apiClient.get<ApiResponse<ArchitectureAnalysisResult>>(
       API_ENDPOINTS.ARCHITECTURE_ANALYSIS(projectId)
+    );
+    return response.data.data;
+  },
+};
+
+/**
+ * Modernization Plan Service
+ */
+export const modernizationPlanService = {
+  run: async (projectId: string): Promise<ModernizationPlan> => {
+    const response = await apiClient.post<ApiResponse<ModernizationPlan>>(
+      API_ENDPOINTS.MODERNIZATION_PLAN(projectId)
+    );
+    return response.data.data;
+  },
+  get: async (projectId: string): Promise<ModernizationPlan> => {
+    const response = await apiClient.get<ApiResponse<ModernizationPlan>>(
+      API_ENDPOINTS.MODERNIZATION_PLAN(projectId)
     );
     return response.data.data;
   },

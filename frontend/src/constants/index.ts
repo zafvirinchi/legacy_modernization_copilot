@@ -25,6 +25,9 @@ export const API_ENDPOINTS = {
   // Architecture Analysis
   ARCHITECTURE_ANALYSIS: (projectId: string) => `/projects/${projectId}/architecture-analysis`,
 
+  // Modernization Plan
+  MODERNIZATION_PLAN: (projectId: string) => `/projects/${projectId}/modernization-plan`,
+
   // Scans
   SCANS_LIST: (projectId: string) => `/projects/${projectId}/scans`,
   SCANS_CREATE: (projectId: string) => `/projects/${projectId}/scans`,

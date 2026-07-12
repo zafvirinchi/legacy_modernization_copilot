@@ -97,6 +97,50 @@ export interface ArchitectureAnalysisResult {
   createdAt: string;
 }
 
+export type Level = 'LOW' | 'MEDIUM' | 'HIGH';
+
+export type ModernTechnology =
+  | 'SPRING_BOOT'
+  | 'SPRING_SECURITY'
+  | 'DOCKER'
+  | 'KUBERNETES'
+  | 'KAFKA'
+  | 'REDIS'
+  | 'OPENAPI'
+  | 'CLOUD_MIGRATION';
+
+export interface RequiredTechnology {
+  technology: ModernTechnology;
+  recommended: boolean;
+  reason: string;
+}
+
+export interface PriorityMatrixItem {
+  item: string;
+  impact: Level;
+  effort: Level;
+}
+
+export interface Risk {
+  description: string;
+  severity: Level;
+}
+
+export interface ModernizationPlan {
+  id: string;
+  projectId: string;
+  migrationStrategy: string;
+  estimatedTimeline: string;
+  migrationComplexity: Level;
+  priorityMatrix: PriorityMatrixItem[];
+  quickWins: string[];
+  risks: Risk[];
+  requiredTechnologies: RequiredTechnology[];
+  filesAnalyzed: number;
+  totalProjectFiles: number;
+  createdAt: string;
+}
+
 export type Role = 'ADMIN' | 'ARCHITECT' | 'DEVELOPER';
 
 export interface User {

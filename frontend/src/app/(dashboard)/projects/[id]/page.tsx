@@ -3,12 +3,18 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { isAxiosError } from 'axios';
-import { ScanSearch, Loader2, Network } from 'lucide-react';
+import { ScanSearch, Loader2, Network, Map } from 'lucide-react';
 import { ProjectSummaryCard } from '@/components/upload';
 import { TechnologyDetectionPanel } from '@/components/detection';
 import { ArchitectureAnalysisPanel } from '@/components/architecture';
-import { projectService, technologyDetectionService, architectureAnalysisService } from '@/services';
-import { Project, TechnologyDetectionResult, ArchitectureAnalysisResult } from '@/types';
+import { ModernizationPlanPanel } from '@/components/planner';
+import {
+  projectService,
+  technologyDetectionService,
+  architectureAnalysisService,
+  modernizationPlanService,
+} from '@/services';
+import { Project, TechnologyDetectionResult, ArchitectureAnalysisResult, ModernizationPlan } from '@/types';
 
 type LoadState = 'loading' | 'loaded' | 'error';
 
@@ -25,6 +31,10 @@ export default function ProjectDetailPage() {
   const [architecture, setArchitecture] = useState<ArchitectureAnalysisResult | null>(null);
   const [isAnalyzingArchitecture, setIsAnalyzingArchitecture] = useState(false);
   const [architectureError, setArchitectureError] = useState<string | null>(null);
+
+  const [plan, setPlan] = useState<ModernizationPlan | null>(null);
+  const [isPlanning, setIsPlanning] = useState(false);
+  const [planError, setPlanError] = useState<string | null>(null);
 
   useEffect(() => {
     projectService
@@ -44,6 +54,11 @@ export default function ProjectDetailPage() {
       .get(id)
       .then(setArchitecture)
       .catch(() => setArchitecture(null));
+
+    modernizationPlanService
+      .get(id)
+      .then(setPlan)
+      .catch(() => setPlan(null));
   }, [id]);
 
   const handleRunDetection = async () => {
@@ -71,6 +86,20 @@ export default function ProjectDetailPage() {
       setArchitectureError(message ?? 'Failed to run architecture analysis');
     } finally {
       setIsAnalyzingArchitecture(false);
+    }
+  };
+
+  const handleGeneratePlan = async () => {
+    setIsPlanning(true);
+    setPlanError(null);
+    try {
+      const result = await modernizationPlanService.run(id);
+      setPlan(result);
+    } catch (error: unknown) {
+      const message = isAxiosError<{ message?: string }>(error) ? error.response?.data?.message : undefined;
+      setPlanError(message ?? 'Failed to generate modernization plan');
+    } finally {
+      setIsPlanning(false);
     }
   };
 
@@ -145,6 +174,33 @@ export default function ProjectDetailPage() {
             <p className="text-sm text-muted-foreground">
               This project hasn&apos;t had an architecture analysis yet. Run it to see the current and target
               architecture diagrams.
+            </p>
+          )}
+        </div>
+      </div>
+
+      <div>
+        <h2 className="text-lg font-semibold">Modernization Roadmap</h2>
+        <div className="mt-3 flex items-center gap-3">
+          <button
+            type="button"
+            onClick={handleGeneratePlan}
+            disabled={isPlanning}
+            className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
+          >
+            {isPlanning ? <Loader2 className="h-4 w-4 animate-spin" /> : <Map className="h-4 w-4" />}
+            {isPlanning ? 'Generating...' : plan ? 'Regenerate Roadmap' : 'Generate Modernization Roadmap'}
+          </button>
+          {planError && <p className="text-sm text-destructive">{planError}</p>}
+        </div>
+
+        <div className="mt-4">
+          {plan ? (
+            <ModernizationPlanPanel plan={plan} />
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No modernization roadmap yet. Generating one works best after running the other analyses above,
+              but isn&apos;t required.
             </p>
           )}
         </div>
