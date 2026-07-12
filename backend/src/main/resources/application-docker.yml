@@ -1,0 +1,20 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://${MONGODB_HOST:mongo}:${MONGODB_PORT:27017}/${MONGODB_DATABASE:ai_legacy_modernization}
+      auto-index-creation: true
+
+logging:
+  level:
+    root: INFO
+    com.ailegacy.modernization.copilot: DEBUG
+  file:
+    name: /var/log/ai-legacy-copilot/application.log
+
+jwt:
+  secret: ${JWT_SECRET:dev-secret-key-not-for-production}
+  expiration-ms: 86400000
+
+app:
+  temp-directory: /tmp/ai-legacy-copilot
+  output-directory: /var/ai-legacy-copilot/output

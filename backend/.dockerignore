@@ -1,0 +1,10 @@
+target/
+logs/
+temp-uploads/
+output-reports/
+.idea/
+*.iml
+.vscode/
+.git/
+.env
+.env.local

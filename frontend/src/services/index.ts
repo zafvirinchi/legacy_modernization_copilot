@@ -4,7 +4,17 @@
 
 import { apiClient } from '@/lib/api-client';
 import { API_ENDPOINTS } from '@/constants';
-import { Project, Scan, Issue, Recommendation, Report, AuthResponse } from '@/types';
+import { Project, Scan, Issue, Recommendation, Report, AuthResponse, HealthStatus } from '@/types';
+
+/**
+ * Health Service
+ */
+export const healthService = {
+  check: async (): Promise<HealthStatus> => {
+    const response = await apiClient.get<HealthStatus>(API_ENDPOINTS.HEALTH);
+    return response.data;
+  },
+};
 
 /**
  * Authentication Service

@@ -59,3 +59,11 @@ export interface AuthResponse {
   token: string;
   user: User;
 }
+
+export interface HealthStatus {
+  status: string;
+  service: string;
+  version: string;
+  environment: string;
+  timestamp: string;
+}
