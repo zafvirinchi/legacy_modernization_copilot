@@ -78,6 +78,25 @@ export interface TechnologyDetectionResult {
   createdAt: string;
 }
 
+export type ArchitecturePattern = 'MONOLITH' | 'MVC' | 'LAYERED' | 'CLIENT_SERVER' | 'MICROSERVICE';
+
+export interface ArchitectureAnalysisResult {
+  id: string;
+  projectId: string;
+  detectedPattern: ArchitecturePattern;
+  currentArchitectureDescription: string;
+  currentArchitectureDiagram: string;
+  architectureScore: number;
+  architectureScoreJustification: string;
+  recommendations: string[];
+  targetArchitecturePattern: ArchitecturePattern;
+  targetArchitectureDescription: string;
+  migrationDiagram: string;
+  filesAnalyzed: number;
+  totalProjectFiles: number;
+  createdAt: string;
+}
+
 export type Role = 'ADMIN' | 'ARCHITECT' | 'DEVELOPER';
 
 export interface User {

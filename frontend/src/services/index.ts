@@ -17,6 +17,7 @@ import {
   Role,
   User,
   TechnologyDetectionResult,
+  ArchitectureAnalysisResult,
 } from '@/types';
 import { getRefreshToken } from '@/utils/auth';
 
@@ -99,6 +100,24 @@ export const technologyDetectionService = {
   get: async (projectId: string): Promise<TechnologyDetectionResult> => {
     const response = await apiClient.get<ApiResponse<TechnologyDetectionResult>>(
       API_ENDPOINTS.TECHNOLOGY_DETECTION(projectId)
+    );
+    return response.data.data;
+  },
+};
+
+/**
+ * Architecture Analysis Service
+ */
+export const architectureAnalysisService = {
+  run: async (projectId: string): Promise<ArchitectureAnalysisResult> => {
+    const response = await apiClient.post<ApiResponse<ArchitectureAnalysisResult>>(
+      API_ENDPOINTS.ARCHITECTURE_ANALYSIS(projectId)
+    );
+    return response.data.data;
+  },
+  get: async (projectId: string): Promise<ArchitectureAnalysisResult> => {
+    const response = await apiClient.get<ApiResponse<ArchitectureAnalysisResult>>(
+      API_ENDPOINTS.ARCHITECTURE_ANALYSIS(projectId)
     );
     return response.data.data;
   },

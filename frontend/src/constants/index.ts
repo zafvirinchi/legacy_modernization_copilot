@@ -22,6 +22,9 @@ export const API_ENDPOINTS = {
   // Technology Detection
   TECHNOLOGY_DETECTION: (projectId: string) => `/projects/${projectId}/technology-detection`,
 
+  // Architecture Analysis
+  ARCHITECTURE_ANALYSIS: (projectId: string) => `/projects/${projectId}/architecture-analysis`,
+
   // Scans
   SCANS_LIST: (projectId: string) => `/projects/${projectId}/scans`,
   SCANS_CREATE: (projectId: string) => `/projects/${projectId}/scans`,
