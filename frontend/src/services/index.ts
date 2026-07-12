@@ -4,7 +4,19 @@
 
 import { apiClient } from '@/lib/api-client';
 import { API_ENDPOINTS } from '@/constants';
-import { Project, Scan, Issue, Recommendation, Report, AuthResponse, HealthStatus } from '@/types';
+import {
+  ApiResponse,
+  AuthTokenResponse,
+  Project,
+  Scan,
+  Issue,
+  Recommendation,
+  Report,
+  HealthStatus,
+  Role,
+  User,
+} from '@/types';
+import { getRefreshToken } from '@/utils/auth';
 
 /**
  * Health Service
@@ -20,20 +32,30 @@ export const healthService = {
  * Authentication Service
  */
 export const authService = {
-  login: async (email: string, password: string): Promise<AuthResponse> => {
-    const response = await apiClient.post<AuthResponse>(API_ENDPOINTS.AUTH_LOGIN, { email, password });
-    return response.data;
+  login: async (email: string, password: string): Promise<AuthTokenResponse> => {
+    const response = await apiClient.post<ApiResponse<AuthTokenResponse>>(API_ENDPOINTS.AUTH_LOGIN, {
+      email,
+      password,
+    });
+    return response.data.data;
   },
-  register: async (email: string, password: string, name: string): Promise<AuthResponse> => {
-    const response = await apiClient.post<AuthResponse>(API_ENDPOINTS.AUTH_REGISTER, { email, password, name });
-    return response.data;
+  register: async (name: string, email: string, password: string, role: Role): Promise<AuthTokenResponse> => {
+    const response = await apiClient.post<ApiResponse<AuthTokenResponse>>(API_ENDPOINTS.AUTH_REGISTER, {
+      name,
+      email,
+      password,
+      role,
+    });
+    return response.data.data;
   },
-  logout: async () => {
-    return apiClient.post(API_ENDPOINTS.AUTH_LOGOUT);
+  logout: async (): Promise<void> => {
+    const refreshToken = getRefreshToken();
+    if (!refreshToken) return;
+    await apiClient.post(API_ENDPOINTS.AUTH_LOGOUT, { refreshToken });
   },
-  getMe: async () => {
-    const response = await apiClient.get<AuthResponse>(API_ENDPOINTS.AUTH_ME);
-    return response.data;
+  getMe: async (): Promise<User> => {
+    const response = await apiClient.get<ApiResponse<User>>(API_ENDPOINTS.AUTH_ME);
+    return response.data.data;
   },
 };
 

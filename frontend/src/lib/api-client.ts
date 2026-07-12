@@ -4,16 +4,28 @@
  */
 
 import axios, {
+  AxiosError,
   AxiosInstance,
   AxiosRequestConfig,
   AxiosRequestHeaders,
   InternalAxiosRequestConfig,
 } from 'axios';
-import { API_BASE_URL } from '@/constants';
-import { getAuthToken, removeAuthToken } from '@/utils/auth';
+import { API_BASE_URL, API_ENDPOINTS } from '@/constants';
+import { getAuthToken, getRefreshToken, removeAuthToken, setAuthTokens } from '@/utils/auth';
+import type { ApiResponse } from '@/types';
+
+interface RetriableRequestConfig extends InternalAxiosRequestConfig {
+  _retry?: boolean;
+}
+
+interface RefreshedTokens {
+  accessToken: string;
+  refreshToken: string;
+}
 
 class ApiClient {
   private client: AxiosInstance;
+  private refreshPromise: Promise<string> | null = null;
 
   constructor() {
     this.client = axios.create({
@@ -44,19 +56,65 @@ class ApiClient {
       (error) => Promise.reject(error)
     );
 
-    // Response interceptor
+    // Response interceptor: on 401, attempt a single token refresh then retry once
     this.client.interceptors.response.use(
       (response) => response,
-      (error) => {
-        if (error.response?.status === 401) {
-          removeAuthToken();
-          if (typeof window !== 'undefined') {
-            window.location.href = '/login';
+      async (error: AxiosError) => {
+        const originalRequest = error.config as RetriableRequestConfig | undefined;
+        const isRefreshCall = originalRequest?.url === API_ENDPOINTS.AUTH_REFRESH;
+
+        if (error.response?.status !== 401 || !originalRequest || originalRequest._retry || isRefreshCall) {
+          if (error.response?.status === 401) {
+            this.handleSessionExpired();
           }
+          return Promise.reject(error);
         }
-        return Promise.reject(error);
+
+        originalRequest._retry = true;
+
+        try {
+          const newAccessToken = await this.refreshAccessToken();
+          originalRequest.headers = {
+            ...originalRequest.headers,
+            Authorization: `Bearer ${newAccessToken}`,
+          } as AxiosRequestHeaders;
+          return this.client(originalRequest);
+        } catch (refreshError) {
+          this.handleSessionExpired();
+          return Promise.reject(refreshError);
+        }
       }
     );
+  }
+
+  private async refreshAccessToken(): Promise<string> {
+    if (!this.refreshPromise) {
+      this.refreshPromise = this.performRefresh().finally(() => {
+        this.refreshPromise = null;
+      });
+    }
+    return this.refreshPromise;
+  }
+
+  private async performRefresh(): Promise<string> {
+    const refreshToken = getRefreshToken();
+    if (!refreshToken) {
+      throw new Error('No refresh token available');
+    }
+
+    const response = await this.client.post<ApiResponse<RefreshedTokens>>(API_ENDPOINTS.AUTH_REFRESH, {
+      refreshToken,
+    });
+    const tokens = response.data.data;
+    setAuthTokens(tokens.accessToken, tokens.refreshToken);
+    return tokens.accessToken;
+  }
+
+  private handleSessionExpired(): void {
+    removeAuthToken();
+    if (typeof window !== 'undefined') {
+      window.location.href = '/login';
+    }
   }
 
   get<T = unknown>(url: string, config?: AxiosRequestConfig) {

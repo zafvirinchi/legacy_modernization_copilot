@@ -13,28 +13,6 @@ export function cn(...inputs: ClassValue[]): string {
 }
 
 /**
- * Authentication utilities
- */
-export function getAuthToken(): string | null {
-  if (typeof window !== 'undefined') {
-    return localStorage.getItem('authToken');
-  }
-  return null;
-}
-
-export function setAuthToken(token: string): void {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('authToken', token);
-  }
-}
-
-export function removeAuthToken(): void {
-  if (typeof window !== 'undefined') {
-    localStorage.removeItem('authToken');
-  }
-}
-
-/**
  * Format utilities
  */
 export function formatDate(date: Date | string): string {

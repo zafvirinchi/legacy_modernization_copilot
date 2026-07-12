@@ -47,17 +47,31 @@ export interface Report {
   path: string;
 }
 
+export type Role = 'ADMIN' | 'ARCHITECT' | 'DEVELOPER';
+
 export interface User {
   id: string;
   email: string;
   name: string;
-  role: 'admin' | 'user';
-  createdAt: Date;
+  role: Role;
+  createdAt: string;
 }
 
-export interface AuthResponse {
-  token: string;
+export interface AuthTokenResponse {
+  accessToken: string;
+  refreshToken: string;
+  tokenType: string;
+  expiresIn: number;
   user: User;
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  message?: string;
+  data: T;
+  errors?: string[];
+  errorCode?: string;
+  timestamp?: string;
 }
 
 export interface HealthStatus {

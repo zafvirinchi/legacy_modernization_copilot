@@ -11,6 +11,9 @@ import java.util.List;
 
 /**
  * Custom UserPrincipal implementation for JWT-based authentication.
+ *
+ * Built directly from validated JWT claims - no database lookup is performed
+ * per request, keeping request authentication stateless and fast.
  */
 @Getter
 @AllArgsConstructor
@@ -57,13 +60,16 @@ public class UserPrincipal implements UserDetails {
         return true;
     }
 
-    public static UserPrincipal create(String id, String username, String email, String password) {
+    /**
+     * Build a principal from JWT claims, granting a single {@code ROLE_<role>} authority.
+     */
+    public static UserPrincipal create(String id, String username, String email, String role) {
         return new UserPrincipal(
                 id,
                 username,
                 email,
-                password,
-                List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                "",
+                List.of(new SimpleGrantedAuthority("ROLE_" + role))
         );
     }
 

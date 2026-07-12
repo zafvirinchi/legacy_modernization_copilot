@@ -5,15 +5,19 @@
 
 'use client';
 
-import React, { createContext, useContext, useState, useCallback } from 'react';
-import { User } from '@/types';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { User, Role } from '@/types';
+import { authService } from '@/services';
+import { getAuthToken, removeAuthToken, setAuthTokens } from '@/utils/auth';
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string, role: Role) => Promise<void>;
   logout: () => Promise<void>;
+  hasRole: (...roles: Role[]) => boolean;
   setUser: (user: User | null) => void;
 }
 
@@ -21,12 +25,42 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const login = useCallback(async (_email: string, _password: string) => {
+  useEffect(() => {
+    const token = getAuthToken();
+    if (!token) {
+      setIsLoading(false);
+      return;
+    }
+
+    authService
+      .getMe()
+      .then(setUser)
+      .catch(() => {
+        removeAuthToken();
+        setUser(null);
+      })
+      .finally(() => setIsLoading(false));
+  }, []);
+
+  const login = useCallback(async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      // TODO: Implement login logic
+      const response = await authService.login(email, password);
+      setAuthTokens(response.accessToken, response.refreshToken);
+      setUser(response.user);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const register = useCallback(async (name: string, email: string, password: string, role: Role) => {
+    setIsLoading(true);
+    try {
+      const response = await authService.register(name, email, password, role);
+      setAuthTokens(response.accessToken, response.refreshToken);
+      setUser(response.user);
     } finally {
       setIsLoading(false);
     }
@@ -35,19 +69,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = useCallback(async () => {
     setIsLoading(true);
     try {
-      // TODO: Implement logout logic
-      setUser(null);
+      await authService.logout();
     } finally {
+      removeAuthToken();
+      setUser(null);
       setIsLoading(false);
     }
   }, []);
+
+  const hasRole = useCallback((...roles: Role[]) => !!user && roles.includes(user.role), [user]);
 
   const value: AuthContextType = {
     user,
     isAuthenticated: !!user,
     isLoading,
     login,
+    register,
     logout,
+    hasRole,
     setUser,
   };
 

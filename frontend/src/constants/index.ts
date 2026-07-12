@@ -61,6 +61,7 @@ export const NAVIGATION_ITEMS = [
   { label: 'Reports', href: '/reports', icon: 'FileText' },
   { label: 'Architecture', href: '/architecture-viewer', icon: 'GitBranch' },
   { label: 'History', href: '/history', icon: 'History' },
+  { label: 'Profile', href: '/profile', icon: 'User' },
   { label: 'Settings', href: '/settings', icon: 'Settings' },
 ];
 

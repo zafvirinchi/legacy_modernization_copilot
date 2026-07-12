@@ -5,6 +5,7 @@ import com.ailegacy.modernization.copilot.interfaces.rest.dto.ApiResponse;
 import com.ailegacy.modernization.copilot.interfaces.rest.dto.ErrorFieldDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -93,6 +94,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 "VALIDATION_ERROR",
                 errors.stream().map(e -> e.getField() + ": " + e.getMessage()).toList()
         );
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiResponse<?> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
+        log.warn("Malformed request body: {}", ex.getMessage());
+        return ApiResponse.error("Request body is malformed or contains an invalid value", "MALFORMED_REQUEST");
     }
 
     @ExceptionHandler(Exception.class)
