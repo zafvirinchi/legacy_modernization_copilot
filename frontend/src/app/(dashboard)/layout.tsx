@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Header } from '@/components/common/header/header';
 import { Sidebar } from '@/components/common/sidebar/sidebar';
@@ -9,6 +9,7 @@ import { useAuth } from '@/context/auth-context';
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -26,11 +27,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Header />
+      <Header onMenuClick={() => setIsMobileNavOpen(true)} />
       <div className="flex flex-1">
-        <Sidebar />
+        <Sidebar isOpen={isMobileNavOpen} onClose={() => setIsMobileNavOpen(false)} />
         <main className="flex-1 overflow-auto bg-background">
-          <div className="container p-6">{children}</div>
+          <div className="container p-4 sm:p-6">{children}</div>
         </main>
       </div>
     </div>

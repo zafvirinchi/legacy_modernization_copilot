@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { FolderOpen } from 'lucide-react';
 import { projectService } from '@/services';
 import { Project } from '@/types';
-import { formatBytes, formatDateTime } from '@/utils';
+import { ProjectCard } from '@/components/projects';
 
 type LoadState = 'loading' | 'loaded' | 'error';
 
@@ -43,29 +43,10 @@ export default function HistoryPage() {
       )}
 
       {state === 'loaded' && projects.length > 0 && (
-        <div className="overflow-hidden rounded-lg border border-border">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-left text-muted-foreground">
-              <tr>
-                <th className="px-4 py-3 font-medium">Name</th>
-                <th className="px-4 py-3 font-medium">Files</th>
-                <th className="px-4 py-3 font-medium">Size</th>
-                <th className="px-4 py-3 font-medium">Uploaded</th>
-              </tr>
-            </thead>
-            <tbody>
-              {projects.map((project) => (
-                <tr key={project.id} className="border-t border-border">
-                  <td className="px-4 py-3 font-medium">
-                    <Link href={`/projects/${project.id}`}>{project.name}</Link>
-                  </td>
-                  <td className="px-4 py-3">{project.totalFiles}</td>
-                  <td className="px-4 py-3">{formatBytes(project.totalSizeBytes)}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{formatDateTime(project.createdAt)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {projects.map((project) => (
+            <ProjectCard key={project.id} project={project} />
+          ))}
         </div>
       )}
     </div>

@@ -1,13 +1,13 @@
 'use client';
 
 import React, { ReactNode } from 'react';
-import { TailwindProvider } from '@/providers/tailwind-provider';
+import { ThemeProvider } from '@/context/theme-context';
 import { AuthProvider } from '@/context/auth-context';
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
-    <TailwindProvider>
+    <ThemeProvider>
       <AuthProvider>{children}</AuthProvider>
-    </TailwindProvider>
+    </ThemeProvider>
   );
 }

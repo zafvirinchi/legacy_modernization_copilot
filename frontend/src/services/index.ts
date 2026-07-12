@@ -19,6 +19,9 @@ import {
   TechnologyDetectionResult,
   ArchitectureAnalysisResult,
   ModernizationPlan,
+  AnalysisRecord,
+  SecurityAnalysisSummary,
+  PerformanceAnalysisSummary,
 } from '@/types';
 import { getRefreshToken } from '@/utils/auth';
 
@@ -139,6 +142,54 @@ export const modernizationPlanService = {
       API_ENDPOINTS.MODERNIZATION_PLAN(projectId)
     );
     return response.data.data;
+  },
+};
+
+/**
+ * Timeline-only status services: these agents have no dedicated UI yet, but
+ * the project timeline needs to know whether/when each has run.
+ */
+export const businessAnalysisStatusService = {
+  get: async (projectId: string): Promise<AnalysisRecord> => {
+    const response = await apiClient.get<ApiResponse<AnalysisRecord>>(API_ENDPOINTS.BUSINESS_ANALYSIS(projectId));
+    return response.data.data;
+  },
+};
+
+export const securityAnalysisStatusService = {
+  get: async (projectId: string): Promise<SecurityAnalysisSummary> => {
+    const response = await apiClient.get<ApiResponse<SecurityAnalysisSummary>>(
+      API_ENDPOINTS.SECURITY_ANALYSIS(projectId)
+    );
+    return response.data.data;
+  },
+};
+
+export const performanceAnalysisStatusService = {
+  get: async (projectId: string): Promise<PerformanceAnalysisSummary> => {
+    const response = await apiClient.get<ApiResponse<PerformanceAnalysisSummary>>(
+      API_ENDPOINTS.PERFORMANCE_ANALYSIS(projectId)
+    );
+    return response.data.data;
+  },
+};
+
+export const springBootGenerationStatusService = {
+  get: async (projectId: string): Promise<AnalysisRecord> => {
+    const response = await apiClient.get<ApiResponse<AnalysisRecord>>(API_ENDPOINTS.SPRING_BOOT_GENERATION(projectId));
+    return response.data.data;
+  },
+};
+
+/**
+ * Modernization Report Service
+ */
+export const modernizationReportService = {
+  downloadPdf: async (projectId: string): Promise<Blob> => {
+    const response = await apiClient.get<Blob>(API_ENDPOINTS.MODERNIZATION_REPORT(projectId), {
+      responseType: 'blob',
+    });
+    return response.data;
   },
 };
 

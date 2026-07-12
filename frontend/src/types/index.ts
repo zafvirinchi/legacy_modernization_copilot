@@ -12,6 +12,22 @@ export interface Project {
   createdAt: string;
 }
 
+/**
+ * Minimal shape used only to know whether an analysis stage has run and when,
+ * for the project timeline - the full report shapes aren't needed there.
+ */
+export interface AnalysisRecord {
+  createdAt: string;
+}
+
+export interface SecurityAnalysisSummary extends AnalysisRecord {
+  overallRiskScore: number;
+}
+
+export interface PerformanceAnalysisSummary extends AnalysisRecord {
+  performanceScore: number;
+}
+
 export interface Scan {
   id: string;
   projectId: string;

@@ -1,0 +1,114 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import type { LucideIcon } from 'lucide-react';
+import { ScanSearch, BookOpen, Network, ShieldAlert, Gauge, Map, Code2, Upload } from 'lucide-react';
+import {
+  technologyDetectionService,
+  businessAnalysisStatusService,
+  architectureAnalysisService,
+  securityAnalysisStatusService,
+  performanceAnalysisStatusService,
+  modernizationPlanService,
+  springBootGenerationStatusService,
+} from '@/services';
+import { Project } from '@/types';
+import { formatDateTime } from '@/utils';
+
+interface TimelineStage {
+  key: string;
+  label: string;
+  icon: LucideIcon;
+  completedAt: string | null;
+}
+
+interface ProjectTimelineProps {
+  project: Project;
+}
+
+function resultDate(result: PromiseSettledResult<{ createdAt: string }>): string | null {
+  return result.status === 'fulfilled' ? result.value.createdAt : null;
+}
+
+export function ProjectTimeline({ project }: ProjectTimelineProps) {
+  const [stages, setStages] = useState<TimelineStage[] | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    Promise.allSettled([
+      technologyDetectionService.get(project.id),
+      businessAnalysisStatusService.get(project.id),
+      architectureAnalysisService.get(project.id),
+      securityAnalysisStatusService.get(project.id),
+      performanceAnalysisStatusService.get(project.id),
+      modernizationPlanService.get(project.id),
+      springBootGenerationStatusService.get(project.id),
+    ]).then(([technology, business, architecture, security, performance, plan, springBoot]) => {
+      if (cancelled) return;
+      setStages([
+        { key: 'technology', label: 'Technology Detection', icon: ScanSearch, completedAt: resultDate(technology) },
+        { key: 'business', label: 'Business Analysis', icon: BookOpen, completedAt: resultDate(business) },
+        { key: 'architecture', label: 'Architecture Analysis', icon: Network, completedAt: resultDate(architecture) },
+        { key: 'security', label: 'Security Analysis', icon: ShieldAlert, completedAt: resultDate(security) },
+        { key: 'performance', label: 'Performance Analysis', icon: Gauge, completedAt: resultDate(performance) },
+        { key: 'plan', label: 'Modernization Plan', icon: Map, completedAt: resultDate(plan) },
+        { key: 'springboot', label: 'Spring Boot Sample', icon: Code2, completedAt: resultDate(springBoot) },
+      ]);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [project.id]);
+
+  if (!stages) {
+    return <p className="text-sm text-muted-foreground">Loading timeline...</p>;
+  }
+
+  const completedStages = stages
+    .filter((stage) => stage.completedAt)
+    .sort((a, b) => new Date(a.completedAt as string).getTime() - new Date(b.completedAt as string).getTime());
+  const pendingStages = stages.filter((stage) => !stage.completedAt);
+
+  const timelineEntries: TimelineStage[] = [
+    { key: 'upload', label: 'Project Uploaded', icon: Upload, completedAt: project.createdAt },
+    ...completedStages,
+  ];
+
+  return (
+    <div className="flex flex-col gap-6">
+      <ol className="relative border-l border-border pl-6">
+        {timelineEntries.map((entry) => {
+          const Icon = entry.icon;
+          return (
+            <li key={entry.key} className="mb-6 last:mb-0">
+              <span className="absolute -left-[13px] flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                <Icon className="h-3.5 w-3.5" />
+              </span>
+              <p className="text-sm font-medium">{entry.label}</p>
+              <p className="text-xs text-muted-foreground">{formatDateTime(entry.completedAt as string)}</p>
+            </li>
+          );
+        })}
+      </ol>
+
+      {pendingStages.length > 0 && (
+        <div>
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Not yet run</p>
+          <ul className="mt-2 flex flex-wrap gap-2">
+            {pendingStages.map((stage) => (
+              <li
+                key={stage.key}
+                className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground"
+              >
+                <stage.icon className="h-3.5 w-3.5" />
+                {stage.label}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}

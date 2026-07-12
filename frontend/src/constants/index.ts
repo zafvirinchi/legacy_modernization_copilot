@@ -28,6 +28,21 @@ export const API_ENDPOINTS = {
   // Modernization Plan
   MODERNIZATION_PLAN: (projectId: string) => `/projects/${projectId}/modernization-plan`,
 
+  // Business Analysis
+  BUSINESS_ANALYSIS: (projectId: string) => `/projects/${projectId}/business-analysis`,
+
+  // Security Analysis
+  SECURITY_ANALYSIS: (projectId: string) => `/projects/${projectId}/security-analysis`,
+
+  // Performance Analysis
+  PERFORMANCE_ANALYSIS: (projectId: string) => `/projects/${projectId}/performance-analysis`,
+
+  // Spring Boot Generation
+  SPRING_BOOT_GENERATION: (projectId: string) => `/projects/${projectId}/spring-boot-generation`,
+
+  // Modernization Report
+  MODERNIZATION_REPORT: (projectId: string) => `/projects/${projectId}/modernization-report`,
+
   // Scans
   SCANS_LIST: (projectId: string) => `/projects/${projectId}/scans`,
   SCANS_CREATE: (projectId: string) => `/projects/${projectId}/scans`,

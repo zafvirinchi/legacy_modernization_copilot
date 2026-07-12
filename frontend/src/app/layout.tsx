@@ -10,9 +10,26 @@ export const metadata: Metadata = {
   robots: 'index, follow',
 };
 
+const THEME_INIT_SCRIPT = `
+  (function () {
+    try {
+      var stored = localStorage.getItem('theme');
+      var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var theme = stored || (prefersDark ? 'dark' : 'light');
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      }
+    } catch (e) {}
+  })();
+`;
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Applied before paint to avoid a flash of the wrong theme; ThemeProvider takes over after hydration. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body className="bg-background text-foreground">
         <Providers>{children}</Providers>
       </body>

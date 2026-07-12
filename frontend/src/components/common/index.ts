@@ -7,3 +7,4 @@ export { Header } from './header/header';
 export { Sidebar } from './sidebar/sidebar';
 export { Footer } from './footer/footer';
 export { Loader } from './loader/loader';
+export { ThemeToggle } from './theme-toggle/theme-toggle';

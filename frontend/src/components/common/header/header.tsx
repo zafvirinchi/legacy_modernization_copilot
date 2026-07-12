@@ -2,13 +2,18 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { LogOut } from 'lucide-react';
+import { LogOut, Menu } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
+import { ThemeToggle } from '@/components/common/theme-toggle/theme-toggle';
+
+interface HeaderProps {
+  onMenuClick?: () => void;
+}
 
 /**
  * Top navigation bar for the dashboard shell
  */
-export function Header() {
+export function Header({ onMenuClick }: HeaderProps) {
   const router = useRouter();
   const { user, logout } = useAuth();
 
@@ -18,26 +23,44 @@ export function Header() {
   };
 
   return (
-    <header className="flex h-14 items-center justify-between border-b border-border bg-card px-6">
-      <Link href="/dashboard" className="text-sm font-semibold no-underline">
-        AI Legacy Modernization Copilot
-      </Link>
-
-      {user && (
-        <div className="flex items-center gap-4 text-sm">
-          <Link href="/profile" className="text-muted-foreground no-underline hover:text-foreground">
-            {user.name}
-          </Link>
+    <header className="flex h-14 items-center justify-between border-b border-border bg-card px-4 sm:px-6">
+      <div className="flex items-center gap-3">
+        {onMenuClick && (
           <button
             type="button"
-            onClick={handleLogout}
-            className="flex items-center gap-1.5 rounded-md px-2 py-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+            onClick={onMenuClick}
+            aria-label="Open navigation menu"
+            className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground md:hidden"
           >
-            <LogOut className="h-4 w-4" />
-            Logout
+            <Menu className="h-5 w-5" />
           </button>
-        </div>
-      )}
+        )}
+        <Link href="/dashboard" className="text-sm font-semibold no-underline">
+          AI Legacy Modernization Copilot
+        </Link>
+      </div>
+
+      <div className="flex items-center gap-2 text-sm">
+        <ThemeToggle />
+        {user && (
+          <>
+            <Link
+              href="/profile"
+              className="hidden text-muted-foreground no-underline hover:text-foreground sm:inline"
+            >
+              {user.name}
+            </Link>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="flex items-center gap-1.5 rounded-md px-2 py-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+            >
+              <LogOut className="h-4 w-4" />
+              <span className="hidden sm:inline">Logout</span>
+            </button>
+          </>
+        )}
+      </div>
     </header>
   );
 }

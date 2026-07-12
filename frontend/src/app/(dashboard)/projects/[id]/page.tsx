@@ -3,16 +3,21 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { isAxiosError } from 'axios';
-import { ScanSearch, Loader2, Network, Map } from 'lucide-react';
+import { ScanSearch, Loader2, Network, Map, Download } from 'lucide-react';
 import { ProjectSummaryCard } from '@/components/upload';
 import { TechnologyDetectionPanel } from '@/components/detection';
 import { ArchitectureAnalysisPanel } from '@/components/architecture';
 import { ModernizationPlanPanel } from '@/components/planner';
+import { ProjectScorecardChart } from '@/components/charts';
+import { ProjectTimeline } from '@/components/projects';
 import {
   projectService,
   technologyDetectionService,
   architectureAnalysisService,
   modernizationPlanService,
+  securityAnalysisStatusService,
+  performanceAnalysisStatusService,
+  modernizationReportService,
 } from '@/services';
 import { Project, TechnologyDetectionResult, ArchitectureAnalysisResult, ModernizationPlan } from '@/types';
 
@@ -35,6 +40,12 @@ export default function ProjectDetailPage() {
   const [plan, setPlan] = useState<ModernizationPlan | null>(null);
   const [isPlanning, setIsPlanning] = useState(false);
   const [planError, setPlanError] = useState<string | null>(null);
+
+  const [securityRiskScore, setSecurityRiskScore] = useState<number | undefined>(undefined);
+  const [performanceScore, setPerformanceScore] = useState<number | undefined>(undefined);
+
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
 
   useEffect(() => {
     projectService
@@ -59,6 +70,16 @@ export default function ProjectDetailPage() {
       .get(id)
       .then(setPlan)
       .catch(() => setPlan(null));
+
+    securityAnalysisStatusService
+      .get(id)
+      .then((result) => setSecurityRiskScore(result.overallRiskScore))
+      .catch(() => setSecurityRiskScore(undefined));
+
+    performanceAnalysisStatusService
+      .get(id)
+      .then((result) => setPerformanceScore(result.performanceScore))
+      .catch(() => setPerformanceScore(undefined));
   }, [id]);
 
   const handleRunDetection = async () => {
@@ -103,6 +124,27 @@ export default function ProjectDetailPage() {
     }
   };
 
+  const handleDownloadReport = async () => {
+    setIsDownloading(true);
+    setDownloadError(null);
+    try {
+      const blob = await modernizationReportService.downloadPdf(id);
+      const url = window.URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = `${project?.name ?? 'project'}-modernization-report.pdf`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error: unknown) {
+      const message = isAxiosError<{ message?: string }>(error) ? error.response?.data?.message : undefined;
+      setDownloadError(message ?? 'Failed to download report');
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   if (projectState === 'loading') {
     return <p className="text-sm text-muted-foreground">Loading project...</p>;
   }
@@ -113,13 +155,44 @@ export default function ProjectDetailPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-semibold">{project.name}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Project details and analysis</p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold">{project.name}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Project details and analysis</p>
+        </div>
+        <div>
+          <button
+            type="button"
+            onClick={handleDownloadReport}
+            disabled={isDownloading}
+            className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-muted disabled:opacity-50"
+          >
+            {isDownloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+            {isDownloading ? 'Preparing PDF...' : 'Download PDF Report'}
+          </button>
+          {downloadError && <p className="mt-1 text-sm text-destructive">{downloadError}</p>}
+        </div>
       </div>
 
-      <div className="max-w-xl">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <ProjectSummaryCard project={project} />
+        <div className="rounded-lg border border-border bg-card p-6">
+          <h3 className="font-semibold">Scorecard</h3>
+          <div className="mt-2">
+            <ProjectScorecardChart
+              architectureScore={architecture?.architectureScore}
+              securityRiskScore={securityRiskScore}
+              performanceScore={performanceScore}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-border bg-card p-6">
+        <h3 className="font-semibold">Timeline</h3>
+        <div className="mt-4">
+          <ProjectTimeline project={project} />
+        </div>
       </div>
 
       <div>
