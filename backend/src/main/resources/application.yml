@@ -100,7 +100,10 @@ app:
   project:
     supported-extensions: java,jsp,xml,properties,sql,yaml,yml,cbl,jcl
     max-extracted-size-mb: ${MAX_EXTRACTED_SIZE_MB:2000}
-  
+  ai:
+    max-digest-chars: ${AI_MAX_DIGEST_CHARS:60000}
+    max-file-chars: ${AI_MAX_FILE_CHARS:6000}
+
 # Actuator Configuration
 management:
   endpoints:
