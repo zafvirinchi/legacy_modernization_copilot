@@ -2,6 +2,7 @@
  * Service Layer - API Integration
  */
 
+import { AxiosProgressEvent } from 'axios';
 import { apiClient } from '@/lib/api-client';
 import { API_ENDPOINTS } from '@/constants';
 import {
@@ -64,22 +65,23 @@ export const authService = {
  */
 export const projectService = {
   list: async (): Promise<Project[]> => {
-    const response = await apiClient.get<Project[]>(API_ENDPOINTS.PROJECTS_LIST);
-    return response.data;
+    const response = await apiClient.get<ApiResponse<Project[]>>(API_ENDPOINTS.PROJECTS_LIST);
+    return response.data.data;
   },
-  create: async (data: Partial<Project>): Promise<Project> => {
-    const response = await apiClient.post<Project>(API_ENDPOINTS.PROJECTS_CREATE, data);
-    return response.data;
+  upload: async (
+    file: File,
+    onUploadProgress?: (progressEvent: AxiosProgressEvent) => void
+  ): Promise<Project> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await apiClient.upload<ApiResponse<Project>>(API_ENDPOINTS.PROJECTS_UPLOAD, formData, {
+      onUploadProgress,
+    });
+    return response.data.data;
   },
   get: async (id: string): Promise<Project> => {
-    const response = await apiClient.get<Project>(API_ENDPOINTS.PROJECTS_GET(id));
-    return response.data;
-  },
-  update: async (id: string, data: Partial<Project>): Promise<Project> => {
-    const response = await apiClient.put<Project>(API_ENDPOINTS.PROJECTS_UPDATE(id), data);
-    return response.data;
-  },  delete: async (id: string) => {
-    return apiClient.delete(API_ENDPOINTS.PROJECTS_DELETE(id));
+    const response = await apiClient.get<ApiResponse<Project>>(API_ENDPOINTS.PROJECTS_GET(id));
+    return response.data.data;
   },
 };
 

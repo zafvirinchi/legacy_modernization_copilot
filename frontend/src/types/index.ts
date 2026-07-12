@@ -5,9 +5,11 @@
 export interface Project {
   id: string;
   name: string;
-  description: string;
-  createdAt: Date;
-  updatedAt: Date;
+  originalFileName: string;
+  totalFiles: number;
+  totalSizeBytes: number;
+  fileExtensionBreakdown: Record<string, number>;
+  createdAt: string;
 }
 
 export interface Scan {

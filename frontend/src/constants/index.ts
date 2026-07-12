@@ -16,10 +16,8 @@ export const API_ENDPOINTS = {
 
   // Projects
   PROJECTS_LIST: '/projects',
-  PROJECTS_CREATE: '/projects',
+  PROJECTS_UPLOAD: '/projects',
   PROJECTS_GET: (id: string) => `/projects/${id}`,
-  PROJECTS_UPDATE: (id: string) => `/projects/${id}`,
-  PROJECTS_DELETE: (id: string) => `/projects/${id}`,
 
   // Scans
   SCANS_LIST: (projectId: string) => `/projects/${projectId}/scans`,

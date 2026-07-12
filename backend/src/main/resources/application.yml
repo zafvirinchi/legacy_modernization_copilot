@@ -97,6 +97,9 @@ app:
   allowed-artifact-types: jar,war,xml,properties,gradle,maven,java
   temp-directory: ${TEMP_UPLOAD_DIR:/tmp/ai-legacy-copilot}
   output-directory: ${OUTPUT_DIR:/var/ai-legacy-copilot/output}
+  project:
+    supported-extensions: java,jsp,xml,properties,sql,yaml,yml,cbl,jcl
+    max-extracted-size-mb: ${MAX_EXTRACTED_SIZE_MB:2000}
   
 # Actuator Configuration
 management:
