@@ -19,6 +19,9 @@ export const API_ENDPOINTS = {
   PROJECTS_UPLOAD: '/projects',
   PROJECTS_GET: (id: string) => `/projects/${id}`,
 
+  // Technology Detection
+  TECHNOLOGY_DETECTION: (projectId: string) => `/projects/${projectId}/technology-detection`,
+
   // Scans
   SCANS_LIST: (projectId: string) => `/projects/${projectId}/scans`,
   SCANS_CREATE: (projectId: string) => `/projects/${projectId}/scans`,

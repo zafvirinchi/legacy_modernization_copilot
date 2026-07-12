@@ -56,7 +56,9 @@ export default function HistoryPage() {
             <tbody>
               {projects.map((project) => (
                 <tr key={project.id} className="border-t border-border">
-                  <td className="px-4 py-3 font-medium">{project.name}</td>
+                  <td className="px-4 py-3 font-medium">
+                    <Link href={`/projects/${project.id}`}>{project.name}</Link>
+                  </td>
                   <td className="px-4 py-3">{project.totalFiles}</td>
                   <td className="px-4 py-3">{formatBytes(project.totalSizeBytes)}</td>
                   <td className="px-4 py-3 text-muted-foreground">{formatDateTime(project.createdAt)}</td>

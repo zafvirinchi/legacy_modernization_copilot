@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { isAxiosError } from 'axios';
 import { ProjectDropzone, UploadProgressBar, ProjectSummaryCard } from '@/components/upload';
 import { projectService } from '@/services';
@@ -66,6 +67,9 @@ export default function UploadPage() {
       {state === 'success' && project && (
         <div className="max-w-xl">
           <ProjectSummaryCard project={project} />
+          <p className="mt-3 text-sm">
+            <Link href={`/projects/${project.id}`}>Run technology detection on this project &rarr;</Link>
+          </p>
         </div>
       )}
     </div>

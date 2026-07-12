@@ -49,6 +49,35 @@ export interface Report {
   path: string;
 }
 
+export type TechnologyType =
+  | 'SERVLET'
+  | 'JSP'
+  | 'SPRING_MVC'
+  | 'SPRING_XML'
+  | 'JDBC'
+  | 'HIBERNATE'
+  | 'EJB'
+  | 'COBOL'
+  | 'JCL'
+  | 'STRUTS';
+
+export interface DetectedTechnology {
+  technology: TechnologyType;
+  confidenceScore: number;
+  evidence: string[];
+}
+
+export interface TechnologyDetectionResult {
+  id: string;
+  projectId: string;
+  detectedTechnologies: DetectedTechnology[];
+  javaVersion: string;
+  databases: string[];
+  buildTool: string;
+  applicationServer: string;
+  createdAt: string;
+}
+
 export type Role = 'ADMIN' | 'ARCHITECT' | 'DEVELOPER';
 
 export interface User {

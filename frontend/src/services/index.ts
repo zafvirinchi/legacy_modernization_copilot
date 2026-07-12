@@ -16,6 +16,7 @@ import {
   HealthStatus,
   Role,
   User,
+  TechnologyDetectionResult,
 } from '@/types';
 import { getRefreshToken } from '@/utils/auth';
 
@@ -81,6 +82,24 @@ export const projectService = {
   },
   get: async (id: string): Promise<Project> => {
     const response = await apiClient.get<ApiResponse<Project>>(API_ENDPOINTS.PROJECTS_GET(id));
+    return response.data.data;
+  },
+};
+
+/**
+ * Technology Detection Service
+ */
+export const technologyDetectionService = {
+  run: async (projectId: string): Promise<TechnologyDetectionResult> => {
+    const response = await apiClient.post<ApiResponse<TechnologyDetectionResult>>(
+      API_ENDPOINTS.TECHNOLOGY_DETECTION(projectId)
+    );
+    return response.data.data;
+  },
+  get: async (projectId: string): Promise<TechnologyDetectionResult> => {
+    const response = await apiClient.get<ApiResponse<TechnologyDetectionResult>>(
+      API_ENDPOINTS.TECHNOLOGY_DETECTION(projectId)
+    );
     return response.data.data;
   },
 };
