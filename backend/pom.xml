@@ -33,6 +33,7 @@
         <junit-jupiter.version>5.9.3</junit-jupiter.version>
         <commons-io.version>2.15.1</commons-io.version>
         <embed-mongo.version>4.11.0</embed-mongo.version>
+        <pdfbox.version>3.0.1</pdfbox.version>
     </properties>
 
     <dependencies>
@@ -146,6 +147,13 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
+        </dependency>
+
+        <!-- PDF Report Generation -->
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>${pdfbox.version}</version>
         </dependency>
 
         <!-- Testing -->
