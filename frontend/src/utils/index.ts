@@ -35,6 +35,20 @@ export function formatDateTime(date: Date | string): string {
   });
 }
 
+/**
+ * Trigger a browser download for an in-memory Blob (e.g. a PDF report fetched via axios).
+ */
+export function triggerBlobDownload(blob: Blob, filename: string): void {
+  const url = window.URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  window.URL.revokeObjectURL(url);
+}
+
 export function formatBytes(bytes: number, decimals = 2): string {
   if (bytes === 0) return '0 Bytes';
 

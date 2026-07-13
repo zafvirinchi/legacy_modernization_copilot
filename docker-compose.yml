@@ -20,7 +20,7 @@ services:
       MONGODB_HOST: mongo
       MONGODB_PORT: 27017
       MONGODB_DATABASE: ${MONGODB_DATABASE:-ai_legacy_modernization}
-      JWT_SECRET: ${JWT_SECRET:-dev-secret-key-not-for-production}
+      JWT_SECRET: ${JWT_SECRET:-change-this-default-secret-in-production-it-must-be-at-least-64-bytes-long-for-hs512}
       APP_ADMIN_PASSWORD: ${APP_ADMIN_PASSWORD:-admin123}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
     ports:

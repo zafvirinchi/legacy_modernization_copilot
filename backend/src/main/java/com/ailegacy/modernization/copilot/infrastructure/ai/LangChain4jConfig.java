@@ -25,6 +25,9 @@ public class LangChain4jConfig {
     @Value("${llm.openai.api-key:}")
     private String openAiApiKey;
 
+    @Value("${llm.openai.base-url:}")
+    private String baseUrl;
+
     @Value("${llm.openai.model:gpt-4}")
     private String model;
 
@@ -44,15 +47,20 @@ public class LangChain4jConfig {
             return null;
         }
 
-        log.info("Initializing OpenAI Chat Language Model | model={} | temperature={} | maxTokens={}", 
-                model, temperature, maxTokens);
+        log.info("Initializing OpenAI Chat Language Model | model={} | temperature={} | maxTokens={} | baseUrl={}",
+                model, temperature, maxTokens, baseUrl.isBlank() ? "default" : baseUrl);
 
-        return OpenAiChatModel.builder()
+        var builder = OpenAiChatModel.builder()
                 .apiKey(openAiApiKey)
                 .modelName(model)
                 .temperature(temperature)
-                .maxTokens(maxTokens)
-                .build();
+                .maxTokens(maxTokens);
+
+        if (!baseUrl.isBlank()) {
+            builder.baseUrl(baseUrl);
+        }
+
+        return builder.build();
     }
 
     /**
@@ -67,10 +75,15 @@ public class LangChain4jConfig {
 
         log.info("Initializing OpenAI Embedding Model");
 
-        return OpenAiEmbeddingModel.builder()
+        var builder = OpenAiEmbeddingModel.builder()
                 .apiKey(openAiApiKey)
-                .modelName("text-embedding-3-small")
-                .build();
+                .modelName("text-embedding-3-small");
+
+        if (!baseUrl.isBlank()) {
+            builder.baseUrl(baseUrl);
+        }
+
+        return builder.build();
     }
 
 }

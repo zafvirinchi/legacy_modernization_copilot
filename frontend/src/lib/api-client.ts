@@ -7,7 +7,6 @@ import axios, {
   AxiosError,
   AxiosInstance,
   AxiosRequestConfig,
-  AxiosRequestHeaders,
   InternalAxiosRequestConfig,
 } from 'axios';
 import { API_BASE_URL, API_ENDPOINTS } from '@/constants';
@@ -31,9 +30,11 @@ class ApiClient {
     this.client = axios.create({
       baseURL: API_BASE_URL,
       timeout: 30000,
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      // No default Content-Type here: axios already auto-detects and JSON-encodes
+      // plain object bodies on its own. A default 'application/json' would also
+      // apply to FormData upload bodies, and axios treats "FormData + declared
+      // JSON content-type" as a signal to coerce the FormData into a JSON object
+      // (converting each File entry to '{}'), breaking uploads.
     });
 
     this.setupInterceptors();
@@ -45,11 +46,11 @@ class ApiClient {
       (config: InternalAxiosRequestConfig) => {
         const token = getAuthToken();
         if (token) {
-          const headers = config.headers ?? {};
-          config.headers = {
-            ...headers,
-            Authorization: `Bearer ${token}`,
-          } as AxiosRequestHeaders;
+          // Mutate the existing AxiosHeaders instance rather than spreading it into a
+          // plain object - spreading strips its class methods, which axios relies on
+          // internally (e.g. to detect FormData bodies and let the browser set the
+          // multipart boundary instead of JSON-stringifying the body).
+          config.headers.set('Authorization', `Bearer ${token}`);
         }
         return config;
       },
@@ -74,10 +75,7 @@ class ApiClient {
 
         try {
           const newAccessToken = await this.refreshAccessToken();
-          originalRequest.headers = {
-            ...originalRequest.headers,
-            Authorization: `Bearer ${newAccessToken}`,
-          } as AxiosRequestHeaders;
+          originalRequest.headers.set('Authorization', `Bearer ${newAccessToken}`);
           return this.client(originalRequest);
         } catch (refreshError) {
           this.handleSessionExpired();
@@ -138,13 +136,10 @@ class ApiClient {
   }
 
   upload<T = unknown>(url: string, formData: FormData, config?: AxiosRequestConfig) {
-    return this.client.post<T>(url, formData, {
-      ...config,
-      headers: {
-        ...config?.headers,
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    // Let the browser set Content-Type for FormData bodies - it must include a
+    // boundary parameter that only the browser can generate. Setting it manually
+    // here would produce a boundary-less header the server can't parse as multipart.
+    return this.client.post<T>(url, formData, config);
   }
 }
 

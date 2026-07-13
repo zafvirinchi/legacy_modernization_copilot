@@ -3,6 +3,70 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
+import type { LucideIcon } from 'lucide-react';
+import { ScanSearch, BookOpen, Network, ShieldAlert, Gauge, Map, Code2 } from 'lucide-react';
+import {
+  technologyDetectionService,
+  businessAnalysisStatusService,
+  architectureAnalysisService,
+  securityAnalysisStatusService,
+  performanceAnalysisStatusService,
+  modernizationPlanService,
+  springBootGenerationStatusService,
+} from '@/services';
+
+export interface AnalysisStage {
+  key: string;
+  label: string;
+  icon: LucideIcon;
+  completedAt: string | null;
+}
+
+function resultDate(result: PromiseSettledResult<{ createdAt: string }>): string | null {
+  return result.status === 'fulfilled' ? result.value.createdAt : null;
+}
+
+/**
+ * useProjectAnalysisStages Hook
+ * Fetches the completion status of every analysis stage for a project
+ * (technology detection through Spring Boot generation), tolerating stages
+ * that haven't been run yet (their GET requests 404, which is expected).
+ */
+export function useProjectAnalysisStages(projectId: string): AnalysisStage[] | null {
+  const [stages, setStages] = useState<AnalysisStage[] | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setStages(null);
+
+    Promise.allSettled([
+      technologyDetectionService.get(projectId),
+      businessAnalysisStatusService.get(projectId),
+      architectureAnalysisService.get(projectId),
+      securityAnalysisStatusService.get(projectId),
+      performanceAnalysisStatusService.get(projectId),
+      modernizationPlanService.get(projectId),
+      springBootGenerationStatusService.get(projectId),
+    ]).then(([technology, business, architecture, security, performance, plan, springBoot]) => {
+      if (cancelled) return;
+      setStages([
+        { key: 'technology', label: 'Technology Detection', icon: ScanSearch, completedAt: resultDate(technology) },
+        { key: 'business', label: 'Business Analysis', icon: BookOpen, completedAt: resultDate(business) },
+        { key: 'architecture', label: 'Architecture Analysis', icon: Network, completedAt: resultDate(architecture) },
+        { key: 'security', label: 'Security Analysis', icon: ShieldAlert, completedAt: resultDate(security) },
+        { key: 'performance', label: 'Performance Analysis', icon: Gauge, completedAt: resultDate(performance) },
+        { key: 'plan', label: 'Modernization Plan', icon: Map, completedAt: resultDate(plan) },
+        { key: 'springboot', label: 'Spring Boot Sample', icon: Code2, completedAt: resultDate(springBoot) },
+      ]);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [projectId]);
+
+  return stages;
+}
 
 /**
  * useAsync Hook

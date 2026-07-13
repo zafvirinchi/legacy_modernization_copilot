@@ -16,7 +16,7 @@ class JwtTokenProviderTest {
     @BeforeEach
     void setUp() {
         jwtTokenProvider = new JwtTokenProvider();
-        ReflectionTestUtils.setField(jwtTokenProvider, "jwtSecretKey", "test-secret-key-for-jwt-signing-must-be-long-enough");
+        ReflectionTestUtils.setField(jwtTokenProvider, "jwtSecretKey", "test-secret-key-for-jwt-signing-must-be-at-least-64-bytes-long-for-hs512-to-accept-it");
         ReflectionTestUtils.setField(jwtTokenProvider, "accessTokenExpirationMs", 60_000L);
         ReflectionTestUtils.setField(jwtTokenProvider, "refreshTokenExpirationMs", 120_000L);
 
@@ -52,7 +52,7 @@ class JwtTokenProviderTest {
         String token = jwtTokenProvider.generateAccessToken(user);
 
         JwtTokenProvider otherProvider = new JwtTokenProvider();
-        ReflectionTestUtils.setField(otherProvider, "jwtSecretKey", "a-completely-different-signing-key-value-here");
+        ReflectionTestUtils.setField(otherProvider, "jwtSecretKey", "a-completely-different-signing-key-value-that-is-also-at-least-64-bytes-long-for-hs512");
         ReflectionTestUtils.setField(otherProvider, "accessTokenExpirationMs", 60_000L);
         ReflectionTestUtils.setField(otherProvider, "refreshTokenExpirationMs", 120_000L);
 

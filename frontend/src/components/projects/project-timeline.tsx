@@ -1,66 +1,16 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import type { LucideIcon } from 'lucide-react';
-import { ScanSearch, BookOpen, Network, ShieldAlert, Gauge, Map, Code2, Upload } from 'lucide-react';
-import {
-  technologyDetectionService,
-  businessAnalysisStatusService,
-  architectureAnalysisService,
-  securityAnalysisStatusService,
-  performanceAnalysisStatusService,
-  modernizationPlanService,
-  springBootGenerationStatusService,
-} from '@/services';
+import { Upload } from 'lucide-react';
+import { useProjectAnalysisStages, type AnalysisStage } from '@/hooks';
 import { Project } from '@/types';
 import { formatDateTime } from '@/utils';
-
-interface TimelineStage {
-  key: string;
-  label: string;
-  icon: LucideIcon;
-  completedAt: string | null;
-}
 
 interface ProjectTimelineProps {
   project: Project;
 }
 
-function resultDate(result: PromiseSettledResult<{ createdAt: string }>): string | null {
-  return result.status === 'fulfilled' ? result.value.createdAt : null;
-}
-
 export function ProjectTimeline({ project }: ProjectTimelineProps) {
-  const [stages, setStages] = useState<TimelineStage[] | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    Promise.allSettled([
-      technologyDetectionService.get(project.id),
-      businessAnalysisStatusService.get(project.id),
-      architectureAnalysisService.get(project.id),
-      securityAnalysisStatusService.get(project.id),
-      performanceAnalysisStatusService.get(project.id),
-      modernizationPlanService.get(project.id),
-      springBootGenerationStatusService.get(project.id),
-    ]).then(([technology, business, architecture, security, performance, plan, springBoot]) => {
-      if (cancelled) return;
-      setStages([
-        { key: 'technology', label: 'Technology Detection', icon: ScanSearch, completedAt: resultDate(technology) },
-        { key: 'business', label: 'Business Analysis', icon: BookOpen, completedAt: resultDate(business) },
-        { key: 'architecture', label: 'Architecture Analysis', icon: Network, completedAt: resultDate(architecture) },
-        { key: 'security', label: 'Security Analysis', icon: ShieldAlert, completedAt: resultDate(security) },
-        { key: 'performance', label: 'Performance Analysis', icon: Gauge, completedAt: resultDate(performance) },
-        { key: 'plan', label: 'Modernization Plan', icon: Map, completedAt: resultDate(plan) },
-        { key: 'springboot', label: 'Spring Boot Sample', icon: Code2, completedAt: resultDate(springBoot) },
-      ]);
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [project.id]);
+  const stages = useProjectAnalysisStages(project.id);
 
   if (!stages) {
     return <p className="text-sm text-muted-foreground">Loading timeline...</p>;
@@ -71,7 +21,7 @@ export function ProjectTimeline({ project }: ProjectTimelineProps) {
     .sort((a, b) => new Date(a.completedAt as string).getTime() - new Date(b.completedAt as string).getTime());
   const pendingStages = stages.filter((stage) => !stage.completedAt);
 
-  const timelineEntries: TimelineStage[] = [
+  const timelineEntries: AnalysisStage[] = [
     { key: 'upload', label: 'Project Uploaded', icon: Upload, completedAt: project.createdAt },
     ...completedStages,
   ];

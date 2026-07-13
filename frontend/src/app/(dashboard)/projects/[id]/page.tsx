@@ -20,6 +20,7 @@ import {
   modernizationReportService,
 } from '@/services';
 import { Project, TechnologyDetectionResult, ArchitectureAnalysisResult, ModernizationPlan } from '@/types';
+import { triggerBlobDownload } from '@/utils';
 
 type LoadState = 'loading' | 'loaded' | 'error';
 
@@ -129,14 +130,7 @@ export default function ProjectDetailPage() {
     setDownloadError(null);
     try {
       const blob = await modernizationReportService.downloadPdf(id);
-      const url = window.URL.createObjectURL(blob);
-      const anchor = document.createElement('a');
-      anchor.href = url;
-      anchor.download = `${project?.name ?? 'project'}-modernization-report.pdf`;
-      document.body.appendChild(anchor);
-      anchor.click();
-      anchor.remove();
-      window.URL.revokeObjectURL(url);
+      triggerBlobDownload(blob, `${project?.name ?? 'project'}-modernization-report.pdf`);
     } catch (error: unknown) {
       const message = isAxiosError<{ message?: string }>(error) ? error.response?.data?.message : undefined;
       setDownloadError(message ?? 'Failed to download report');
