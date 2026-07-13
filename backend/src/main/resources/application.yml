@@ -2,7 +2,7 @@ spring:
   application:
     name: ai-legacy-modernization-copilot
   profiles:
-    active: dev
+    active: ${SPRING_PROFILES_ACTIVE:dev}
   
   # MongoDB Configuration
   data:
@@ -34,7 +34,7 @@ spring:
 
 # Server Configuration
 server:
-  port: 8080
+  port: ${PORT:8080}
   servlet:
     context-path: /api
   compression:
