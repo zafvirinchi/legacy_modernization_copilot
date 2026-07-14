@@ -6,22 +6,33 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.time.Instant;
+
 /**
  * OpenAPI / Swagger configuration for API documentation.
- * 
+ *
  * Provides:
  * - API metadata (title, version, description)
  * - Contact information
  * - Security scheme definitions (JWT Bearer)
  */
+@Slf4j
 @Configuration
 public class OpenApiConfig {
 
     @Bean
     public OpenAPI customOpenAPI() {
+        log.info("[STARTUP-DIAG] >> OpenApiConfig.customOpenAPI() starting at {}", Instant.now());
+        OpenAPI openAPI = buildOpenAPI();
+        log.info("[STARTUP-DIAG] << OpenApiConfig.customOpenAPI() finished at {}", Instant.now());
+        return openAPI;
+    }
+
+    private OpenAPI buildOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
                         .title("AI Legacy Modernization Copilot API")
