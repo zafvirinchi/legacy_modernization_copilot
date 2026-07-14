@@ -8,11 +8,7 @@ logging:
   level:
     root: WARN
     com.ailegacy.modernization.copilot: INFO
-    # org.springframework.security override intentionally removed for now: it
-    # was more specific than application.yml's diagnostic org.springframework=DEBUG
-    # and would have silenced exactly the security-bean startup logging this
-    # investigation needs. Restore `org.springframework.security: WARN` here
-    # once the Northflank startup hang is diagnosed and fixed.
+    org.springframework.security: WARN
   # No file appender in prod: platforms like Northflank capture stdout/stderr
   # directly, and a hardcoded /var/log path may not be writable in a locked-down
   # buildpack container - that would risk failing logging init at startup.

@@ -3,11 +3,6 @@ spring:
     name: ai-legacy-modernization-copilot
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
-  # Note: ApplicationStartup (buffering) is wired programmatically in
-  # AiLegacyModernizationCopilotApplication.main() - `spring.main.application-startup`
-  # is NOT a bindable YAML property (no String->ApplicationStartup converter
-  # exists; setting it here throws ConverterNotFoundException and crashes
-  # startup before any of our own code runs - confirmed empirically).
 
   # MongoDB Configuration
   data:
@@ -58,16 +53,11 @@ logging:
   level:
     root: INFO
     com.ailegacy.modernization.copilot: DEBUG
-    # Temporarily DEBUG-level for the whole framework (per explicit diagnostic
-    # request) to trace exactly which phase of ApplicationContext refresh the
-    # Northflank deployment stalls in. Overridable via SPRING_FRAMEWORK_LOG_LEVEL
-    # so it can be dialed back to INFO without a code change once diagnosed.
-    org.springframework: ${SPRING_FRAMEWORK_LOG_LEVEL:DEBUG}
+    org.springframework.security: DEBUG
+    org.springframework.data.mongodb: DEBUG
   pattern:
-    # Millisecond precision added (was second-only) so before/after bean timing
-    # logs are actually useful for finding a hang, not just its rough vicinity.
-    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} - %msg%n"
-    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
   file:
     name: logs/application.log
   logback:
@@ -128,11 +118,7 @@ management:
   endpoints:
     web:
       exposure:
-        # 'startup' added temporarily for the Northflank hang investigation -
-        # exposes the ApplicationStartup buffer (see spring.main.application-startup
-        # above) via GET /api/actuator/startup, if the process gets far enough
-        # to serve requests at all.
-        include: health,info,metrics,prometheus,startup
+        include: health,info,metrics,prometheus
   endpoint:
     health:
       show-details: when-authorized

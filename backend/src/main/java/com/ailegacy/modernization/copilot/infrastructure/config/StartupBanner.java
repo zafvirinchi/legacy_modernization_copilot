@@ -10,8 +10,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
-
 /**
  * Logs a concise summary of the resolved runtime configuration once the
  * application is fully up, to make deployment diagnostics (e.g. on
@@ -60,11 +58,7 @@ public class StartupBanner implements ApplicationListener<ApplicationReadyEvent>
      */
     @Bean
     public WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> logResolvedPortBeforeBind() {
-        log.info("[STARTUP-DIAG] >> StartupBanner.logResolvedPortBeforeBind() starting at {}", Instant.now());
-        WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> customizer =
-                factory -> log.info("Binding embedded Tomcat to {}:{} (before web server start)", serverAddress, serverPort);
-        log.info("[STARTUP-DIAG] << StartupBanner.logResolvedPortBeforeBind() finished at {}", Instant.now());
-        return customizer;
+        return factory -> log.info("Binding embedded Tomcat to {}:{} (before web server start)", serverAddress, serverPort);
     }
 
     @Override

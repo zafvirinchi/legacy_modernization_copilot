@@ -5,7 +5,6 @@ import com.ailegacy.modernization.copilot.infrastructure.security.JwtTokenProvid
 import com.ailegacy.modernization.copilot.infrastructure.security.RestAccessDeniedHandler;
 import com.ailegacy.modernization.copilot.infrastructure.security.RestAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,7 +20,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +30,6 @@ import java.util.List;
  * - Configures CORS for frontend communication
  * - Sets up session management
  */
-@Slf4j
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
@@ -48,21 +45,11 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        log.info("[STARTUP-DIAG] >> SecurityConfig.passwordEncoder() starting at {}", Instant.now());
-        PasswordEncoder encoder = new BCryptPasswordEncoder();
-        log.info("[STARTUP-DIAG] << SecurityConfig.passwordEncoder() finished at {}", Instant.now());
-        return encoder;
+        return new BCryptPasswordEncoder();
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        log.info("[STARTUP-DIAG] >> SecurityConfig.filterChain() starting at {}", Instant.now());
-        SecurityFilterChain chain = buildFilterChain(http);
-        log.info("[STARTUP-DIAG] << SecurityConfig.filterChain() finished at {}", Instant.now());
-        return chain;
-    }
-
-    private SecurityFilterChain buildFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf().disable()
                 .cors().and()
@@ -89,13 +76,6 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        log.info("[STARTUP-DIAG] >> SecurityConfig.corsConfigurationSource() starting at {}", Instant.now());
-        CorsConfigurationSource source = buildCorsConfigurationSource();
-        log.info("[STARTUP-DIAG] << SecurityConfig.corsConfigurationSource() finished at {}", Instant.now());
-        return source;
-    }
-
-    private CorsConfigurationSource buildCorsConfigurationSource() {
         // Origin patterns (not exact origins) so the Vercel preview-deployment
         // wildcard works; required by Spring when allowCredentials is also true.
         List<String> allowedOriginPatterns = new ArrayList<>(List.of(

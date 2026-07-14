@@ -10,8 +10,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 
-import java.time.Instant;
-
 /**
  * LangChain4j configuration for AI model integration.
  * 
@@ -59,15 +57,6 @@ public class LangChain4jConfig {
     @Lazy
     @Bean
     public ChatLanguageModel chatLanguageModel() {
-        log.info("[STARTUP-DIAG] >> LangChain4jConfig.chatLanguageModel() starting at {}", Instant.now());
-        try {
-            return buildChatLanguageModel();
-        } finally {
-            log.info("[STARTUP-DIAG] << LangChain4jConfig.chatLanguageModel() finished at {}", Instant.now());
-        }
-    }
-
-    private ChatLanguageModel buildChatLanguageModel() {
         if (openAiApiKey == null || openAiApiKey.isBlank()) {
             log.warn("OpenAI API key not configured. AI features will be disabled.");
             return null;
@@ -102,15 +91,6 @@ public class LangChain4jConfig {
     @Lazy
     @Bean
     public EmbeddingModel embeddingModel() {
-        log.info("[STARTUP-DIAG] >> LangChain4jConfig.embeddingModel() starting at {}", Instant.now());
-        try {
-            return buildEmbeddingModel();
-        } finally {
-            log.info("[STARTUP-DIAG] << LangChain4jConfig.embeddingModel() finished at {}", Instant.now());
-        }
-    }
-
-    private EmbeddingModel buildEmbeddingModel() {
         if (openAiApiKey == null || openAiApiKey.isBlank()) {
             log.warn("OpenAI API key not configured. Embedding features will be disabled.");
             return null;
