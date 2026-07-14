@@ -42,7 +42,7 @@ class BusinessLogicAnalyzerTest {
         ReflectionTestUtils.setField(digestBuilder, "maxFileChars", 6_000);
 
         return new BusinessLogicAnalyzer(
-                model,
+                new FixedObjectProvider<>(model),
                 new ProjectFileScanner(),
                 digestBuilder,
                 new BusinessAnalyzerPromptBuilder(),

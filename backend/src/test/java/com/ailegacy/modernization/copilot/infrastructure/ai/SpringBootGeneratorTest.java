@@ -47,7 +47,7 @@ class SpringBootGeneratorTest {
         ReflectionTestUtils.setField(digestBuilder, "maxFileChars", 6_000);
 
         return new SpringBootGenerator(
-                model,
+                new FixedObjectProvider<>(model),
                 new ProjectFileScanner(),
                 digestBuilder,
                 new SpringBootGeneratorPromptBuilder(),

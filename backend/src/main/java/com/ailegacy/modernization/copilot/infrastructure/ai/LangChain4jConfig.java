@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 
 /**
  * LangChain4j configuration for AI model integration.
@@ -38,8 +39,22 @@ public class LangChain4jConfig {
     private int maxTokens;
 
     /**
-     * OpenAI Chat Language Model Bean
+     * OpenAI Chat Language Model Bean.
+     *
+     * {@code @Lazy}: this bean must never be constructed during application
+     * startup. Building the underlying HTTP client is the one thing in this
+     * codebase that talks to an external host during bean creation, and if
+     * that host is unreachable (or the constructor otherwise throws), an
+     * eager bean would fail {@code ApplicationContext.refresh()} and take
+     * the whole application down - including the embedded web server -
+     * before Tomcat ever binds to a port. Consumers must inject this via
+     * {@code ObjectProvider<ChatLanguageModel>} and resolve it lazily at the
+     * point of use (see the analyzer classes in this package), not as a
+     * direct constructor dependency, so a null/absent/failed model never
+     * blocks startup and is only ever discovered when an AI feature is
+     * actually invoked.
      */
+    @Lazy
     @Bean
     public ChatLanguageModel chatLanguageModel() {
         if (openAiApiKey == null || openAiApiKey.isBlank()) {
@@ -50,22 +65,30 @@ public class LangChain4jConfig {
         log.info("Initializing OpenAI Chat Language Model | model={} | temperature={} | maxTokens={} | baseUrl={}",
                 model, temperature, maxTokens, baseUrl.isBlank() ? "default" : baseUrl);
 
-        var builder = OpenAiChatModel.builder()
-                .apiKey(openAiApiKey)
-                .modelName(model)
-                .temperature(temperature)
-                .maxTokens(maxTokens);
+        try {
+            var builder = OpenAiChatModel.builder()
+                    .apiKey(openAiApiKey)
+                    .modelName(model)
+                    .temperature(temperature)
+                    .maxTokens(maxTokens);
 
-        if (!baseUrl.isBlank()) {
-            builder.baseUrl(baseUrl);
+            if (!baseUrl.isBlank()) {
+                builder.baseUrl(baseUrl);
+            }
+
+            return builder.build();
+        } catch (Exception ex) {
+            log.warn("Failed to initialize OpenAI Chat Language Model - AI features will be disabled. Cause: {}",
+                    ex.getMessage(), ex);
+            return null;
         }
-
-        return builder.build();
     }
 
     /**
-     * OpenAI Embedding Model Bean
+     * OpenAI Embedding Model Bean. {@code @Lazy} for the same reason as
+     * {@link #chatLanguageModel()} above.
      */
+    @Lazy
     @Bean
     public EmbeddingModel embeddingModel() {
         if (openAiApiKey == null || openAiApiKey.isBlank()) {
@@ -75,15 +98,21 @@ public class LangChain4jConfig {
 
         log.info("Initializing OpenAI Embedding Model");
 
-        var builder = OpenAiEmbeddingModel.builder()
-                .apiKey(openAiApiKey)
-                .modelName("text-embedding-3-small");
+        try {
+            var builder = OpenAiEmbeddingModel.builder()
+                    .apiKey(openAiApiKey)
+                    .modelName("text-embedding-3-small");
 
-        if (!baseUrl.isBlank()) {
-            builder.baseUrl(baseUrl);
+            if (!baseUrl.isBlank()) {
+                builder.baseUrl(baseUrl);
+            }
+
+            return builder.build();
+        } catch (Exception ex) {
+            log.warn("Failed to initialize OpenAI Embedding Model - embedding features will be disabled. Cause: {}",
+                    ex.getMessage(), ex);
+            return null;
         }
-
-        return builder.build();
     }
 
 }

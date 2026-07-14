@@ -56,7 +56,7 @@ class PerformanceAnalyzerTest {
         ReflectionTestUtils.setField(digestBuilder, "maxFileChars", 6_000);
 
         return new PerformanceAnalyzer(
-                model,
+                new FixedObjectProvider<>(model),
                 new ProjectFileScanner(),
                 digestBuilder,
                 new PerformanceAnalyzerPromptBuilder(),

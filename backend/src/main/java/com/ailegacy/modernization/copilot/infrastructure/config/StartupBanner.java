@@ -3,7 +3,10 @@ package com.ailegacy.modernization.copilot.infrastructure.config;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.boot.web.server.WebServerFactoryCustomizer;
+import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerFactory;
 import org.springframework.context.ApplicationListener;
+import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +26,9 @@ public class StartupBanner implements ApplicationListener<ApplicationReadyEvent>
     @Value("${server.port}")
     private String serverPort;
 
+    @Value("${server.address:0.0.0.0}")
+    private String serverAddress;
+
     @Value("${server.servlet.context-path:}")
     private String contextPath;
 
@@ -40,6 +46,19 @@ public class StartupBanner implements ApplicationListener<ApplicationReadyEvent>
 
     public StartupBanner(Environment environment) {
         this.environment = environment;
+    }
+
+    /**
+     * Logs the address/port Tomcat is about to bind to. {@code customize()} runs
+     * while Spring Boot configures the {@code ServletWebServerFactory}, which
+     * happens before the web server actually starts listening - so this is the
+     * last point at which we can confirm what Tomcat is *about* to do, useful for
+     * diagnosing "no healthy upstream"-style failures where the process starts
+     * but never becomes reachable on the platform's expected port/interface.
+     */
+    @Bean
+    public WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> logResolvedPortBeforeBind() {
+        return factory -> log.info("Binding embedded Tomcat to {}:{} (before web server start)", serverAddress, serverPort);
     }
 
     @Override

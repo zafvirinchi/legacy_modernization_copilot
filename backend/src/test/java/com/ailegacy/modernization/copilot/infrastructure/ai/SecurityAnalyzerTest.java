@@ -59,7 +59,7 @@ class SecurityAnalyzerTest {
         ReflectionTestUtils.setField(digestBuilder, "maxFileChars", 6_000);
 
         return new SecurityAnalyzer(
-                model,
+                new FixedObjectProvider<>(model),
                 new ProjectFileScanner(),
                 digestBuilder,
                 new SecurityAnalyzerPromptBuilder(),

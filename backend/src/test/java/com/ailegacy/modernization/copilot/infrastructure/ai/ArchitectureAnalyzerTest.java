@@ -43,7 +43,7 @@ class ArchitectureAnalyzerTest {
         ReflectionTestUtils.setField(digestBuilder, "maxFileChars", 6_000);
 
         return new ArchitectureAnalyzer(
-                model,
+                new FixedObjectProvider<>(model),
                 new ProjectFileScanner(),
                 digestBuilder,
                 new ArchitectureAnalyzerPromptBuilder(),

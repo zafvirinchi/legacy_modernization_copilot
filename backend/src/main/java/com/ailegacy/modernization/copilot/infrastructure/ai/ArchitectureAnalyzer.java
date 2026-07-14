@@ -11,7 +11,7 @@ import com.ailegacy.modernization.copilot.infrastructure.ai.model.LlmArchitectur
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.lang.Nullable;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -31,25 +31,28 @@ public class ArchitectureAnalyzer {
     private static final Pattern MERMAID_FENCE_PATTERN = Pattern.compile(
             "^```(?:mermaid)?\\s*|```\\s*$", Pattern.MULTILINE);
 
-    private final ChatLanguageModel chatLanguageModel;
+    private final ObjectProvider<ChatLanguageModel> chatLanguageModelProvider;
     private final ProjectFileScanner fileScanner;
     private final CodeDigestBuilder digestBuilder;
     private final ArchitectureAnalyzerPromptBuilder promptBuilder;
     private final ObjectMapper objectMapper;
 
     /**
-     * {@code chatLanguageModel} is {@code @Nullable} because {@link LangChain4jConfig}
-     * returns a null bean when no OpenAI API key is configured - Spring must treat
-     * this constructor parameter as optional, or the whole context fails to start
-     * whenever the key is absent (see {@code AI_DISABLED} handling in {@link #analyze}).
+     * Depends on an {@code ObjectProvider} rather than a direct {@code ChatLanguageModel}
+     * dependency so the underlying OpenAI client (see {@link LangChain4jConfig}) is never
+     * constructed during application startup - only when {@link #analyze} is actually
+     * called. A direct/eager dependency here would force bean creation during
+     * {@code ApplicationContext} refresh, and if that construction fails (e.g. the
+     * OpenAI host is unreachable), it would take down the whole application before
+     * the web server ever starts.
      */
     public ArchitectureAnalyzer(
-            @Nullable ChatLanguageModel chatLanguageModel,
+            ObjectProvider<ChatLanguageModel> chatLanguageModelProvider,
             ProjectFileScanner fileScanner,
             CodeDigestBuilder digestBuilder,
             ArchitectureAnalyzerPromptBuilder promptBuilder,
             ObjectMapper objectMapper) {
-        this.chatLanguageModel = chatLanguageModel;
+        this.chatLanguageModelProvider = chatLanguageModelProvider;
         this.fileScanner = fileScanner;
         this.digestBuilder = digestBuilder;
         this.promptBuilder = promptBuilder;
@@ -58,6 +61,7 @@ public class ArchitectureAnalyzer {
 
     public ArchitectureAnalysisReport analyze(String projectId, String projectName, String storagePath,
                                                List<String> knownTechnologies, String businessContext) {
+        ChatLanguageModel chatLanguageModel = chatLanguageModelProvider.getIfAvailable();
         if (chatLanguageModel == null) {
             throw new BusinessLogicException(
                     "AI features are disabled because no LLM API key is configured", "AI_DISABLED");

@@ -60,7 +60,7 @@ class ModernizationPlannerTest {
         ReflectionTestUtils.setField(digestBuilder, "maxFileChars", 6_000);
 
         return new ModernizationPlanner(
-                model,
+                new FixedObjectProvider<>(model),
                 new ProjectFileScanner(),
                 digestBuilder,
                 new ModernizationPlannerPromptBuilder(),

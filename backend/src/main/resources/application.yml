@@ -38,6 +38,10 @@ spring:
 # Server Configuration
 server:
   port: ${PORT:8080}
+  # Explicit rather than relying on Spring Boot's default: bind every interface,
+  # not just loopback, so the container's external load balancer (e.g. Northflank)
+  # can actually reach the process.
+  address: 0.0.0.0
   servlet:
     context-path: /api
   compression:
