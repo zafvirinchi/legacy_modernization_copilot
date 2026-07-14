@@ -9,14 +9,17 @@ logging:
     root: WARN
     com.ailegacy.modernization.copilot: INFO
     org.springframework.security: WARN
-  file:
-    name: /var/log/ai-legacy-copilot/application.log
+  # No file appender in prod: platforms like Northflank capture stdout/stderr
+  # directly, and a hardcoded /var/log path may not be writable in a locked-down
+  # buildpack container - that would risk failing logging init at startup.
 
 jwt:
-  secret: ${JWT_SECRET}
+  # No override here - falls back to application.yml's safe default so startup
+  # never fails on a missing JWT_SECRET. Set JWT_SECRET explicitly in Northflank
+  # for real production use; the default is dev-grade only.
   expiration-ms: 900000
   refresh-expiration-ms: 604800000
 
 app:
-  temp-directory: /var/ai-legacy-copilot/temp
-  output-directory: /var/ai-legacy-copilot/output
+  temp-directory: ${TEMP_UPLOAD_DIR:${java.io.tmpdir}/ai-legacy-copilot}
+  output-directory: ${OUTPUT_DIR:${java.io.tmpdir}/ai-legacy-copilot/output}

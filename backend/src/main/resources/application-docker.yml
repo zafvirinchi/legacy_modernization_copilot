@@ -2,7 +2,7 @@ spring:
   data:
     mongodb:
       uri: mongodb://${MONGODB_HOST:mongo}:${MONGODB_PORT:27017}/${MONGODB_DATABASE:ai_legacy_modernization}
-      auto-index-creation: true
+      auto-index-creation: false
 
 logging:
   level:
@@ -18,4 +18,4 @@ jwt:
 
 app:
   temp-directory: /tmp/ai-legacy-copilot
-  output-directory: /var/ai-legacy-copilot/output
+  output-directory: ${OUTPUT_DIR:${java.io.tmpdir}/ai-legacy-copilot/output}

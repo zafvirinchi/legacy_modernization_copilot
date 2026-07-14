@@ -12,8 +12,8 @@ import com.ailegacy.modernization.copilot.infrastructure.ai.model.LlmPerformance
 import com.ailegacy.modernization.copilot.infrastructure.ai.model.LlmPerformanceFinding;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.model.chat.ChatLanguageModel;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -26,7 +26,6 @@ import java.util.regex.Pattern;
  */
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class PerformanceAnalyzer {
 
     private static final Pattern JSON_BLOCK_PATTERN = Pattern.compile("\\{.*}", Pattern.DOTALL);
@@ -36,6 +35,25 @@ public class PerformanceAnalyzer {
     private final CodeDigestBuilder digestBuilder;
     private final PerformanceAnalyzerPromptBuilder promptBuilder;
     private final ObjectMapper objectMapper;
+
+    /**
+     * {@code chatLanguageModel} is {@code @Nullable} because {@link LangChain4jConfig}
+     * returns a null bean when no OpenAI API key is configured - Spring must treat
+     * this constructor parameter as optional, or the whole context fails to start
+     * whenever the key is absent (see {@code AI_DISABLED} handling in {@link #analyze}).
+     */
+    public PerformanceAnalyzer(
+            @Nullable ChatLanguageModel chatLanguageModel,
+            ProjectFileScanner fileScanner,
+            CodeDigestBuilder digestBuilder,
+            PerformanceAnalyzerPromptBuilder promptBuilder,
+            ObjectMapper objectMapper) {
+        this.chatLanguageModel = chatLanguageModel;
+        this.fileScanner = fileScanner;
+        this.digestBuilder = digestBuilder;
+        this.promptBuilder = promptBuilder;
+        this.objectMapper = objectMapper;
+    }
 
     public PerformanceAnalysisReport analyze(String projectId, String projectName, String storagePath,
                                               List<String> knownTechnologies) {
